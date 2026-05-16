@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Albion Online – Ceny Surowców EU</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d0f;
+      --bg2:       #13131a;
+      --bg3:       #1a1a24;
+      --border:    rgba(180,150,80,0.18);
+      --border2:   rgba(180,150,80,0.35);
+      --gold:      #c9a44a;
+      --gold-dim:  #8a6e2e;
+      --text:      #ddd4c0;
+      --text-dim:  #7a7060;
+      --text-mid:  #a89878;
+      --success:   #5c9e5a;
+      --warn:      #b8962a;
+      --danger:    #9e4a4a;
+      --radius:    6px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 16px;
+      min-height: 100vh;
+    }
+
+    /* subtle parchment texture via repeating gradient */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(180,150,80,0.015) 40px, rgba(180,150,80,0.015) 41px),
+        repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(180,150,80,0.01) 60px, rgba(180,150,80,0.01) 61px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #app { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+    /* ── Header ── */
+    header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 2.5rem; }
+
+    .site-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(22px, 4vw, 38px);
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+      margin-bottom: 6px;
+      text-shadow: 0 0 40px rgba(201,164,74,0.25);
+    }
+
+    .site-title span {
+      display: block;
+      font-size: 0.45em;
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      color: var(--text-mid);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .divider {
+      width: 200px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+      margin: 14px auto;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Controls bar ── */
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 1.5rem;
+    }
+
+    .city-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .city-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-family: 'Cinzel', serif;
+      margin-right: 4px;
+      flex-shrink: 0;
+    }
+
+    .city-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 11.5px;
+      letter-spacing: 0.05em;
+      padding: 5px 13px;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-mid);
+      border-radius: var(--radius);
+      transition: all 0.18s;
+    }
+
+    .city-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+    .city-btn.active {
+      background: rgba(201,164,74,0.1);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .info-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg2);
+      font-size: 12.5px;
+    }
+
+    .info-note { color: var(--text-dim); }
+
+    .info-right { display: flex; align-items: center; gap: 10px; }
+
+    #last-update { font-size: 12px; color: var(--text-dim); }
+
+    .refresh-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      padding: 5px 14px;
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--text-mid);
+      border-radius: var(--radius);
+      transition: all 0.18s;
+    }
+
+    .refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .refresh-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── Tier legend ── */
+    .tier-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+      align-items: center;
+    }
+
+    .legend-label {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-family: 'Cinzel', serif;
+      letter-spacing: 0.08em;
+      margin-right: 4px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+    }
+
+    .legend-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+    /* ── Loading & Error ── */
+    #loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      gap: 10px;
+      color: var(--text-dim);
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid var(--border2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #error-msg {
+      display: none;
+      padding: 1.25rem;
+      text-align: center;
+      border: 1px solid rgba(158,74,74,0.4);
+      border-radius: var(--radius);
+      background: rgba(158,74,74,0.08);
+      color: #c07070;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── Resource cards ── */
+    .resource-card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+      background: var(--bg2);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg3);
+    }
+
+    .card-icon {
+      font-size: 15px;
+      color: var(--gold-dim);
+    }
+
+    .card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+    }
+
+    /* ── Table ── */
+    .price-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      table-layout: fixed;
+    }
+
+    .price-table thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .price-table th {
+      padding: 6px 12px;
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-align: left;
+    }
+
+    .price-table th.r { text-align: right; }
+
+    .price-table tbody tr {
+      border-bottom: 1px solid rgba(180,150,80,0.08);
+      transition: background 0.12s;
+    }
+
+    .price-table tbody tr:last-child { border-bottom: none; }
+    .price-table tbody tr:hover { background: rgba(201,164,74,0.04); }
+
+    .price-table td {
+      padding: 7px 12px;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .price-table td.r { text-align: right; font-variant-numeric: tabular-nums; }
+
+    .tier-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .price-val { color: var(--text); }
+    .price-empty { color: var(--text-dim); }
+
+    .margin-pos { color: var(--success); font-weight: 500; }
+    .margin-warn { color: var(--warn); font-weight: 500; }
+    .margin-neg { color: var(--danger); font-weight: 500; }
+    .pct-label { font-size: 11px; color: var(--text-dim); margin-left: 4px; }
+
+    .age-fresh { color: #5a9a5a; font-size: 10.5px; margin-left: 4px; }
+    .age-mid   { color: var(--warn); font-size: 10.5px; margin-left: 4px; }
+    .age-old   { color: var(--text-dim); font-size: 10.5px; margin-left: 4px; }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 2.5rem;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      padding-top: 1.25rem;
+    }
+
+    footer a { color: var(--gold-dim); text-decoration: none; }
+    footer a:hover { color: var(--gold); }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .price-table { font-size: 12px; }
+      .price-table th, .price-table td { padding: 5px 7px; }
+      .col-procname { display: none; }
+      .col-procprice-head { display: none; }
+      .col-procprice { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="site-title">
+      Albion Online
+      <span>Ceny Surowców · Serwer Europa</span>
+    </div>
+    <div class="divider"></div>
+    <p class="subtitle">Jakość 1 · Dane: Albion Online Data Project · Odświeżanie co 5 min</p>
+  </header>
+
+  <div class="controls">
+    <div class="city-row">
+      <span class="city-label">Miasto:</span>
+      <div id="city-tabs" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    </div>
+    <div class="info-bar">
+      <span class="info-note">Marża = cena wyrobu − 2 × cena surowca (bazowe 2:1, bez zwrotu z craftu ~15.5%)</span>
+      <div class="info-right">
+        <span id="last-update"></span>
+        <button class="refresh-btn" id="refresh-btn" onclick="loadPrices()">⟳ Odśwież</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tier-legend">
+    <span class="legend-label">Tiers:</span>
+    <!-- injected by JS -->
+  </div>
+
+  <div id="loading"><div class="spinner" aria-hidden="true"></div>Pobieranie cen z rynku…</div>
+  <div id="tables" style="display:none;"></div>
+  <div id="error-msg"></div>
+
+  <footer>
+    Dane dostarczane przez <a href="https://www.albion-online-data.com/" target="_blank" rel="noopener">Albion Online Data Project</a>.
+    Wymagany klient AODP do aktualizacji cen przez społeczność.
+  </footer>
+
+</div>
+
+<script>
+const CITIES = [
+  {id:'Caerleon',     label:'Caerleon'},
+  {id:'Bridgewatch',  label:'Bridgewatch'},
+  {id:'Fort Sterling',label:'Fort Sterling'},
+  {id:'Lymhurst',     label:'Lymhurst'},
+  {id:'Martlock',     label:'Martlock'},
+  {id:'Thetford',     label:'Thetford'},
+  {id:'Brecilien',    label:'Brecilien'},
+];
+
+const TIERS = [2,3,4,5,6,7,8];
+
+const TIER_COLORS = {
+  2:'#888780', 3:'#4e9e1a', 4:'#2277cc',
+  5:'#cc8800', 6:'#8855cc', 7:'#cc5522', 8:'#cc2222'
+};
+
+const TIER_LABELS = {
+  2:'Pionier', 3:'Adept', 4:'Ekspert',
+  5:'Mistrz', 6:'Arcymistrz', 7:'Legendarny', 8:'Zaklęty'
+};
+
+const RESOURCES = [
+  {
+    key:'ore', label:'Ruda / Metale', icon:'⚙',
+    raw:       TIERS.map(t=>`T${t}_ORE`),
+    processed: TIERS.map(t=>`T${t}_METALBAR`),
+    rawNames:  ['Ruda Miedzi','Ruda Cyny','Ruda Żelaza','Ruda Tytanu','Ruda Runitu','Ruda Meteorytu','Kamień Krwi'],
+    procNames: ['Sztabka Miedzi','Sztabka Cyny','Sztabka Żelaza','Sztabka Tytanu','Sztabka Runitu','Sztabka Meteorytu','Sztabka Krwi'],
+  },
+  {
+    key:'wood', label:'Drewno / Deski', icon:'🌲',
+    raw:       TIERS.map(t=>`T${t}_WOOD`),
+    processed: TIERS.map(t=>`T${t}_PLANKS`),
+    rawNames:  ['Kłoda Brzozowa','Kłoda Kasztanowa','Kłoda Dębowa','Kłoda Tekowa','Kłoda Mahoniowa','Kłoda Cedrowa','Kłoda Krw. Dębu'],
+    procNames: ['Deski Brzozowe','Deski Kasztanowe','Deski Dębowe','Deski Tekowe','Deski Mahoniowe','Deski Cedrowe','Deski Krw. Dębu'],
+  },
+  {
+    key:'fiber', label:'Włókno / Tkanina', icon:'🌿',
+    raw:       TIERS.map(t=>`T${t}_FIBER`),
+    processed: TIERS.map(t=>`T${t}_CLOTH`),
+    rawNames:  ['Bawełna','Len','Konopie','Kwiat Nieba','Czerwona Bawełna','Słonecznik','Kwiat Ducha'],
+    procNames: ['Prosta Tkanina','Lniana Tkanina','Tkanina Konopna','Błękitna Tkanina','Błyszcząca Tkanina','Jedwab','Wzniosły Jedwab'],
+  },
+  {
+    key:'hide', label:'Skóra / Wyprawa', icon:'🛡',
+    raw:       TIERS.map(t=>`T${t}_HIDE`),
+    processed: TIERS.map(t=>`T${t}_LEATHER`),
+    rawNames:  ['Szorstka Skóra','Cienka Skóra','Średnia Skóra','Gruba Skóra','Solidna Skóra','Gęsta Skóra','Wyjątkowa Skóra'],
+    procNames: ['Surowa Wyprawa','Cienka Wyprawa','Wyprawa','Twarda Wyprawa','Solidna Wyprawa','Gęsta Wyprawa','Wyjątkowa Wyprawa'],
+  },
+  {
+    key:'rock', label:'Kamień / Bloki', icon:'🪨',
+    raw:       TIERS.map(t=>`T${t}_ROCK`),
+    processed: TIERS.map(t=>`T${t}_STONEBLOCK`),
+    rawNames:  ['Wapień','Piaskowiec','Trawertyn','Granit','Łupek','Bazalt','Marmur'],
+    procNames: ['Blok Wapienny','Blok Piaskowca','Blok Trawertynu','Blok Granitu','Blok Łupku','Blok Bazaltu','Blok Marmuru'],
+  },
+];
+
+const ALL_IDS = RESOURCES.flatMap(r=>[...r.raw,...r.processed]).join(',');
+
+let selectedCity = 'Caerleon';
+let priceMap = {};
+
+/* ── Formatters ── */
+function fmt(v) {
+  if (!v || v === 0) return null;
+  if (v >= 1e6) return (v/1e6).toFixed(2) + 'M';
+  if (v >= 1e3) return (v/1e3).toFixed(1) + 'k';
+  return v.toLocaleString('pl-PL');
+}
+
+function ageStr(dateStr) {
+  if (!dateStr || dateStr.startsWith('0001')) return '';
+  const h = Math.floor((Date.now() - new Date(dateStr).getTime()) / 3600000);
+  if (h < 1)  return '<span class="age-fresh">● świeże</span>';
+  if (h < 12) return `<span class="age-mid">${h}h</span>`;
+  if (h < 48) return `<span class="age-old">${h}h</span>`;
+  return `<span class="age-old">${Math.floor(h/24)}d</span>`;
+}
+
+function marginHtml(rawId, procId) {
+  const r = priceMap[rawId], p = priceMap[procId];
+  if (!r||!p||!r.sell_price_min||!p.sell_price_min) return '<span class="price-empty">—</span>';
+  const margin = p.sell_price_min - 2 * r.sell_price_min;
+  const pct = Math.round((margin / (2 * r.sell_price_min)) * 100);
+  const sign = margin >= 0 ? '+' : '';
+  const cls = margin > 500 ? 'margin-pos' : margin > 0 ? 'margin-warn' : 'margin-neg';
+  return `<span class="${cls}">${sign}${fmt(margin)||'0'}</span><span class="pct-label">(${sign}${pct}%)</span>`;
+}
+
+/* ── City tabs ── */
+function buildCityTabs() {
+  const el = document.getElementById('city-tabs');
+  el.innerHTML = '';
+  CITIES.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'city-btn' + (c.id === selectedCity ? ' active' : '');
+    btn.textContent = c.label;
+    btn.setAttribute('aria-pressed', c.id === selectedCity);
+    btn.onclick = () => { selectedCity = c.id; buildCityTabs(); loadPrices(); };
+    el.appendChild(btn);
+  });
+}
+
+/* ── Tier legend ── */
+function buildLegend() {
+  const el = document.querySelector('.tier-legend');
+  const label = document.createElement('span');
+  label.className = 'legend-label';
+  label.textContent = 'Tier:';
+  el.appendChild(label);
+  TIERS.forEach(t => {
+    const item = document.createElement('span');
+    item.className = 'legend-item';
+    item.innerHTML = `<span class="legend-dot" style="background:${TIER_COLORS[t]}"></span><span style="color:var(--text-mid)">T${t} – ${TIER_LABELS[t]}</span>`;
+    el.appendChild(item);
+  });
+}
+
+/* ── Render tables ── */
+function renderTables() {
+  const wrap = document.getElementById('tables');
+  wrap.innerHTML = '';
+
+  RESOURCES.forEach(res => {
+    const card = document.createElement('div');
+    card.className = 'resource-card';
+
+    card.innerHTML = `<div class="card-header">
+      <span class="card-icon">${res.icon}</span>
+      <span class="card-title">${res.label}</span>
+    </div>`;
+
+    const tbl = document.createElement('table');
+    tbl.className = 'price-table';
+    tbl.setAttribute('aria-label', res.label);
+
+    tbl.innerHTML = `<thead><tr>
+      <th style="width:42px;">Tier</th>
+      <th>Surowiec</th>
+      <th class="r" style="width:88px;">Kup za</th>
+      <th class="col-procname">Wyrób</th>
+      <th class="r col-procprice-head" style="width:88px;">Sprzedaj</th>
+      <th class="r" style="width:120px;">Marża (2:1)</th>
+    </tr></thead>`;
+
+    const tbody = document.createElement('tbody');
+    TIERS.forEach((t, i) => {
+      const rId = res.raw[i], pId = res.processed[i];
+      const rd = priceMap[rId], pd = priceMap[pId];
+      const rP = rd ? fmt(rd.sell_price_min) : null;
+      const pP = pd ? fmt(pd.sell_price_min) : null;
+      const rAge = rd ? ageStr(rd.sell_price_min_date) : '';
+      const pAge = pd ? ageStr(pd.sell_price_min_date) : '';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><span class="tier-badge" style="color:${TIER_COLORS[t]}">T${t}</span></td>
+        <td title="${res.rawNames[i]}">${res.rawNames[i]}${rAge}</td>
+        <td class="r">${rP ? `<span class="price-val">${rP}</span>` : '<span class="price-empty">—</span>'}</td>
+        <td class="col-procname" title="${res.procNames[i]}">${res.procNames[i]}${pAge}</td>
+        <td class="r col-procprice">${pP ? `<span class="price-val">${pP}</span>` : '<span class="price-empty">—</span>'}</td>
+        <td class="r">${marginHtml(rId, pId)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    tbl.appendChild(tbody);
+    card.appendChild(tbl);
+    wrap.appendChild(card);
+  });
+}
+
+/* ── Fetch ── */
+async function loadPrices() {
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('tables').style.display = 'none';
+  document.getElementById('error-msg').style.display = 'none';
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+
+  const urls = [
+    `https://www.albion-online-data.com/api/v2/stats/prices/${ALL_IDS}?locations=${encodeURIComponent(selectedCity)}&qualities=1`,
+    `https://cors-anywhere.herokuapp.com/https://www.albion-online-data.com/api/v2/stats/prices/${ALL_IDS}?locations=${encodeURIComponent(selectedCity)}&qualities=1`,
+  ];
+
+  let lastError = null;
+  
+  for (let url of urls) {
+    try {
+      const res = await fetch(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0' }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      priceMap = {};
+      data.forEach(item => { priceMap[item.item_id] = item; });
+
+      renderTables();
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('tables').style.display = 'block';
+
+      const now = new Date();
+      document.getElementById('last-update').textContent =
+        `Odświeżono: ${now.toLocaleTimeString('pl-PL')}`;
+      
+      btn.disabled = false;
+      return; // Sukces!
+    } catch (e) {
+      lastError = e;
+      continue; // Spróbuj następnego URL-a
+    }
+  }
+
+  // Jeśli wszystkie adresy zawiodły
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('error-msg').style.display = 'block';
+  document.getElementById('error-msg').innerHTML = `
+    <strong>⚠ Błąd pobierania danych z API</strong><br>
+    <small style="display:block;margin-top:8px;line-height:1.6;text-align:left;">
+      <strong>Rozwiązania:</strong><br>
+      1. Jeśli otwierasz lokalnie (file://), wrzuć plik na hosting (GitHub Pages, Netlify, itp.)<br>
+      2. Albo uruchom serwer: <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:3px;">python -m http.server 8000</code> i otwórz <code style="background:rgba(0,0,0,0.3);padding:2px 6px;border-radius:3px;">http://localhost:8000</code><br>
+      3. Sprawdź dostęp do internetu - API: albion-online-data.com<br>
+      <br>Błąd: ${lastError.message}
+    </small>
+  `;
+  btn.disabled = false;
+}
+
+/* ── Init ── */
+buildCityTabs();
+buildLegend();
+loadPrices();
+setInterval(loadPrices, 5 * 60 * 1000);
+</script>
+</body>
+</html>
