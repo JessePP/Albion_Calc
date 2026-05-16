@@ -313,10 +313,11 @@ async function loadPrices() {
   const btn = document.getElementById('refresh-btn');
   btn.disabled = true;
 
-  const res  = RESOURCES.find(r => r.key === selectedRes);
-  const ids  = allIds(res).join(',');
-  const locs = CITIES.join(',');
-  const url  = `https://www.albion-online-data.com/api/v2/stats/prices/${ids}?locations=${encodeURIComponent(locs)}&qualities=1`;
+  const res     = RESOURCES.find(r => r.key === selectedRes);
+  const ids     = allIds(res);
+  const urlIds  = ids.map(id => id.replace(/@(\d)/g, '%40$1')).join(',');
+  const locs    = CITIES.join(',');
+  const url     = `https://www.albion-online-data.com/api/v2/stats/prices/${urlIds}?locations=${encodeURIComponent(locs)}&qualities=1`;
 
   try {
     const resp = await fetch(url);
